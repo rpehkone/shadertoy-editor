@@ -100,3 +100,15 @@ function render(time) {
 
 requestAnimationFrame(render);
 
+document.addEventListener("DOMContentLoaded", function () {
+  const vimTextbox = document.getElementById("shader-editor");
+  const editor = CodeMirror.fromTextArea(vimTextbox, {
+    mode: "text/x-csrc",
+	theme: "monokai",
+    lineNumbers: true,
+    keyMap: "vim",
+  });
+  var container = editor.getWrapperElement().parentNode;
+  container.style.height = '80%';
+  editor.setSize(null, container.clientHeight);
+});
