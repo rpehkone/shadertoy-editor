@@ -11,12 +11,14 @@ void main() {
 }
 `;
 
-const fragmentShaderSource =
+const fragmentShaderHeader =
 `precision mediump float;
 uniform vec2 iResolution;
 uniform float iTime;
+`;
 
-void main() {
+const initialUserFragment =
+`void main() {
 	vec2 uv = gl_FragCoord.xy / iResolution.xy;
 	gl_FragColor = vec4(uv, 0.5 + 0.5 * sin(iTime), 1);
 }
@@ -54,14 +56,25 @@ function createProgram(gl, vertexShader, fragmentShader) {
 const shaderEditor = document.getElementById('shader-editor');
 const compileButton = document.getElementById('compile-button');
 const errorbox = document.getElementById('error-box');
+const errorline = document.getElementById('error-line');
 
-shaderEditor.value = fragmentShaderSource;
+shaderEditor.value = initialUserFragment;
 compileButton.addEventListener('click', () => {
 	try {
-		init_render(shaderEditor.value);
+		init_render(fragmentShaderHeader + shaderEditor.value);
 		errorbox.textContent = "";
+		errorline.textContent = "";
 	} catch (error) {
+		error = error.message.substring(6)
+		const match = error.match(/(\d:\d:)(.*)/);
+		if (!match) return
+		const numbers = match[1];
+		error = match[2].trim();
 		errorbox.textContent = error;
+
+		let [number1, line_num] = numbers.split(':');
+		const headerNewLines = (fragmentShaderHeader.match(/\n/g) || []).length + 1;
+		errorline.textContent = "Error on line: " + String(line_num - headerNewLines);
 	};
 });
 
@@ -90,7 +103,7 @@ function init_render(frag) {
 	gl.uniform2f(iResolutionUniformLocation, gl.canvas.width, gl.canvas.height);
 	console.log("shader init");
 }
-init_render(fragmentShaderSource);
+init_render(fragmentShaderHeader + initialUserFragment);
 
 function render(time) {
 	const iTime = time * 0.001; // Convert to seconds
