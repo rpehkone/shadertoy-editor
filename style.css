@@ -23,8 +23,8 @@ html {
 .left-div {
 	flex: 1;
 	/* background-color: #f00; */
-	display: flex;
-	justify-content: center;
+	/* display: flex;
+	justify-content: center; */
 }
 
 .right-div {
@@ -54,7 +54,13 @@ textarea {
 
 button {
 	font-size: xx-large;
-    width: 100%;
+    width: 30%;
     height: 10%;
 	background-color: grey;
+	border-radius: 10px;
+}
+
+#error-box {
+	padding: 10px;
+	color: red;
 }

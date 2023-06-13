@@ -28,7 +28,7 @@ function createShader(gl, type, source) {
 	gl.compileShader(shader);
 
 	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-		console.error(gl.getShaderInfoLog(shader));
+		throw new Error(gl.getShaderInfoLog(shader));
 		gl.deleteShader(shader);
 		return null;
 	}
@@ -52,11 +52,17 @@ function createProgram(gl, vertexShader, fragmentShader) {
 }
 
 const shaderEditor = document.getElementById('shader-editor');
-const submitButton = document.getElementById('submit-button');
+const compileButton = document.getElementById('compile-button');
+const errorbox = document.getElementById('error-box');
 
 shaderEditor.value = fragmentShaderSource;
-submitButton.addEventListener('click', () => {
-	init_render(shaderEditor.value);
+compileButton.addEventListener('click', () => {
+	try {
+		init_render(shaderEditor.value);
+		errorbox.textContent = "";
+	} catch (error) {
+		errorbox.textContent = error;
+	};
 });
 
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);

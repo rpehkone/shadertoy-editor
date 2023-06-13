@@ -1,3 +1,3 @@
-python3 -m http.server  
+shadertoy clone with vim editor  
 
-Get-Content index.html, style.css | Set-Clipboard  
+python3 -m http.server  
