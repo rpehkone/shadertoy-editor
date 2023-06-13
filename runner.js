@@ -1,3 +1,7 @@
+import { render, fragmentShaderHeader } from './render.js';
+
+export var program;
+
 const canvas = document.getElementById('canvas');
 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
@@ -9,12 +13,6 @@ attribute vec2 a_position;
 void main() {
 	gl_Position = vec4(a_position, 0, 1);
 }
-`;
-
-const fragmentShaderHeader =
-`precision mediump float;
-uniform vec2 iResolution;
-uniform float iTime;
 `;
 
 const initialUserFragment =
@@ -80,7 +78,6 @@ compileButton.addEventListener('click', () => {
 
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 var fragmentShader;
-var program;
 function init_render(frag) {
 	fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, frag);
 	program = createProgram(gl, vertexShader, fragmentShader);
@@ -103,21 +100,6 @@ function init_render(frag) {
 	gl.uniform2f(iResolutionUniformLocation, gl.canvas.width, gl.canvas.height);
 	console.log("shader init");
 }
-init_render(fragmentShaderHeader + initialUserFragment);
-
-function render(time) {
-	const iTime = time * 0.001; // Convert to seconds
-
-	gl.clear(gl.COLOR_BUFFER_BIT);
-
-	gl.uniform1f(gl.getUniformLocation(program, "iTime"), iTime);
-
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-	requestAnimationFrame(render);
-}
-
-requestAnimationFrame(render);
 
 document.addEventListener("DOMContentLoaded", function () {
 	const vimTextbox = document.getElementById("shader-editor");
@@ -132,4 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	container.style.height = '80%';
 	editor.setSize(null, container.clientHeight);
 	editor.on('change', () => editor.save())
+
+	init_render(fragmentShaderHeader + initialUserFragment);
+	requestAnimationFrame(render);
 });
