@@ -59,13 +59,20 @@ const errorline = document.getElementById('error-line');
 shaderEditor.value = initialUserFragment;
 compileButton.addEventListener('click', () => {
 	try {
-		init_render(fragmentShaderHeader + shaderEditor.value);
+		let shader = shaderEditor.value;
+		shader = shader.replace(/mainImage\(.*\)/, "main()");
+		shader = shader.replace(/fragColor/g, "gl_FragColor");
+		shader = shader.replace(/fragCoord/g, "gl_FragCoord.xy");
+		init_render(fragmentShaderHeader + shader);
 		errorbox.textContent = "";
 		errorline.textContent = "";
 	} catch (error) {
-		error = error.message.substring(6)
-		const match = error.match(/(\d:\d:)(.*)/);
-		if (!match) return
+		let errorstr = error.message.substring(6)
+		const match = errorstr.match(/(\d:\d:)(.*)/);
+		if (!match) {
+			errorline.textContent = error.message;
+			return;
+		}
 		const numbers = match[1];
 		error = match[2].trim();
 		errorbox.textContent = error;
