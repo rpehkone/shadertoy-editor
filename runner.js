@@ -1,11 +1,10 @@
 import { render, init_render, fragmentShaderHeader } from './render.js';
 
-
-const canvas = document.getElementById('canvas');
-const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const shaderEditor = document.getElementById('shader-editor');
+const compileButton = document.getElementById('compile-button');
+const errorbox = document.getElementById('error-box');
+const errorline = document.getElementById('error-line');
+const leftDiv = document.getElementById('left-div');
 
 const initialUserFragment =
 `void main() {
@@ -13,11 +12,6 @@ const initialUserFragment =
 	fragColor = vec4(uv, 0.5 + 0.5 * sin(iTime), 1);
 }
 `;
-
-const shaderEditor = document.getElementById('shader-editor');
-const compileButton = document.getElementById('compile-button');
-const errorbox = document.getElementById('error-box');
-const errorline = document.getElementById('error-line');
 
 shaderEditor.value = initialUserFragment;
 compileButton.addEventListener('click', () => {
@@ -50,6 +44,16 @@ document.addEventListener("DOMContentLoaded", function () {
 		theme: "monokai",
 		lineNumbers: true,
 		keyMap: "vim",
+	});
+
+	CodeMirror.Vim.defineEx("copy", "co", function (cm, params) {
+		document.execCommand("copy");
+	});
+
+	editor.setOption("extraKeys", {
+		"Ctrl-C": function (cm) {
+			document.execCommand("copy");
+		}
 	});
 
 	var container = editor.getWrapperElement().parentNode;

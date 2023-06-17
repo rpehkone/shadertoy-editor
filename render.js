@@ -1,26 +1,31 @@
 export const fragmentShaderHeader =
-`precision mediump float;
+`#version 300 es
+precision mediump float;
 uniform vec2 iResolution;
 uniform vec4 iMouse;
 uniform float iTime;
+out vec4 fragColor;
 `;
 export { render };
 
 var program;
 
 const canvas = document.getElementById('canvas');
-const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+const gl = canvas.getContext('webgl2')
 
 var iMouse = [0, 0]
 canvas.addEventListener('mousemove', function (event) {
-	const rect = canvas.getBoundingClientRect();
-	iMouse[0] = event.clientX - rect.left + window.scrollX;
-	iMouse[1] = rect.height - (event.clientY - rect.top) + window.scrollY;
-	iMouse[0] *= 2.0;
-	iMouse[1] *= 2.0;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    iMouse[0] = (event.clientX - rect.left) * scaleX;
+    iMouse[1] = (canvas.height - (event.clientY - rect.top) * scaleY);
 });
 
 function render(time) {
+
+    gl.viewport(0, 0, canvas.width, canvas.height);
 
     gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -73,10 +78,10 @@ function createProgram(gl, getvertexShader, getfragmentShader) {
 	return program;
 }
 
-const vertexShaderSource = `
-attribute vec2 a_position;
+const vertexShaderSource = `#version 300 es
+in vec2 a_position;
 void main() {
-	gl_Position = vec4(a_position, 0, 1);
+	gl_Position = vec4(a_position, 0.0, 1.0);
 }
 `;
 
@@ -85,7 +90,6 @@ var fragmentShader;
 
 function toy_to_glsl(user_shader) {
 	user_shader = user_shader.replace(/mainImage\(.*\)/, "main()");
-	user_shader = user_shader.replace(/fragColor/g, "gl_FragColor");
 	user_shader = user_shader.replace(/fragCoord/g, "gl_FragCoord.xy");
     return user_shader;
 }
@@ -94,6 +98,7 @@ export function init_render(user_shader) {
     user_shader = toy_to_glsl(user_shader);
 
 	let frag = fragmentShaderHeader + user_shader;
+    console.log(frag)
 
 	fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, frag);
 	program = createProgram(gl, vertexShader, fragmentShader);
